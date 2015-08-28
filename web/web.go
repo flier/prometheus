@@ -146,9 +146,13 @@ func New(st local.Storage, qe *promql.Engine, rm *rules.Manager, status *Prometh
 	instrf := prometheus.InstrumentHandlerFunc
 	instrh := prometheus.InstrumentHandler
 
-	router.Get("/", instrf("status", h.status))
+	router.Get("/", instrf("graph", h.graph))
+	router.Get("/graph", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "/", http.StatusMovedPermanently)
+	})
+
+	router.Get("/status", instrf("status", h.status))
 	router.Get("/alerts", instrf("alerts", h.alerts))
-	router.Get("/graph", instrf("graph", h.graph))
 	router.Get("/version", instrf("version", h.version))
 
 	router.Get("/heap", instrf("heap", dumpHeap))
